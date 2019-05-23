@@ -15,20 +15,6 @@ import pickle
 
 np.random.seed(0)
 
-def data_1Dto2D(data, Y=9, X=9):
-    data_2D = np.zeros([Y, X])
-    data_2D[0] = (0,  	   	0, 	        0,          data[0],    0,          data[16], 	0,  	    0, 	        0       )
-    data_2D[1] = (0,  	   	0,          0,          data[1],    0,          data[17],   0,          0,          0       )
-    data_2D[2] = (data[3],  0,          data[2],    0,          data[18],   0,          data[19],   0,          data[20])
-    data_2D[3] = (0,        data[4],    0,          data[5],    0,          data[22],   0,          data[21],   0       )
-    data_2D[4] = (data[7],  0,          data[6],    0,          data[23],   0,          data[24],   0,          data[25])
-    data_2D[5] = (0,        data[8],    0,          data[9],    0,          data[27],   0,          data[26],   0       )
-    data_2D[6] = (data[11], 0,          data[10],   0,          data[15],   0,          data[28],   0,          data[29])
-    data_2D[7] = (0,        0,          0,          data[12],   0,          data[30],   0,          0,          0       )
-    data_2D[8] = (0,        0,          0,          data[13],   data[14],   data[31],   0,          0,          0       )
-    # return shape:9*9
-    return data_2D
-
 def norm_dataset(dataset_1D):
     norm_dataset_1D = np.zeros([dataset_1D.shape[0], 32])
     for i in range(dataset_1D.shape[0]):
@@ -43,20 +29,6 @@ def feature_normalize(data):
     data_normalized[data_normalized.nonzero()] = (data_normalized[data_normalized.nonzero()] - mean)/sigma
     # return shape: 9*9
     return data_normalized
-
-def dataset_1Dto2D(dataset_1D):
-    dataset_2D = np.zeros([dataset_1D.shape[0],9,9])
-    for i in range(dataset_1D.shape[0]):
-        dataset_2D[i] = data_1Dto2D(dataset_1D[i])
-    # return shape: m*9*9
-    return dataset_2D
-
-def norm_dataset_1Dto2D(dataset_1D):
-    norm_dataset_2D = np.zeros([dataset_1D.shape[0], 9, 9])
-    for i in range(dataset_1D.shape[0]):
-        norm_dataset_2D[i] = feature_normalize( data_1Dto2D(dataset_1D[i]))
-    # return shape: m*9*9
-    return norm_dataset_2D
 
 def windows(data, size):
     start = 0
@@ -109,27 +81,21 @@ def apply_mixup(dataset_file,window_size,label,yes_or_not): # initial empty labe
         #read data and label
         data = norm_dataset(data)
         data, label = segment_signal_without_transition(data, label_in,label_index,window_size)
-        # cnn data process
-        data_cnn    = dataset_1Dto2D(data)
-        data_cnn    = data_cnn.reshape ( int(data_cnn.shape[0]/window_size), window_size, 9, 9)
         # rnn data process
         data_rnn    = data. reshape(int(data.shape[0]/window_size), window_size, 32)
         # append new data and label
-        data_inter_cnn  = np.vstack([data_inter_cnn, data_cnn])
         data_inter_rnn  = np.vstack([data_inter_rnn, data_rnn])
         label_inter = np.append(label_inter, label)
     '''
-    print("total cnn size:", data_inter_cnn.shape)
     print("total rnn size:", data_inter_rnn.shape)
     print("total label size:", label_inter.shape)
     '''
     # shuffle data
     index = np.array(range(0, len(label_inter)))
     np.random.shuffle( index)
-    shuffled_data_cnn	= data_inter_cnn[index]
     shuffled_data_rnn	= data_inter_rnn[index]
     shuffled_label 	= label_inter[index]
-    return shuffled_data_cnn ,shuffled_data_rnn,shuffled_label,record
+    return shuffled_data_rnn,shuffled_label,record
 
 if __name__ == '__main__' :
     begin = time.time()
@@ -137,10 +103,9 @@ if __name__ == '__main__' :
     dataset_dir		=   "/home/bsipl_5/experiment/data_preprocessed_matlab/"
     window_size		=	128
     output_dir		=   "./deap_shuffled_data/"
-    label_class = "valence"  #sys.argv[1]  # arousal/valence
-    suffix = "yes"      #sys.argv[2]  # yes/no (using baseline signals or not)
-    #label_class     =   sys.argv[1]     # arousal/valence
-    #suffix          =   sys.argv[2]     # yes/no (using baseline signals or not)
+    label_class = "valence"  
+    suffix = "yes"     
+    
     # get directory name for one subject
     record_list = [task for task in os.listdir(dataset_dir) if os.path.isfile(os.path.join(dataset_dir,task))]
     output_dir = output_dir+suffix+"_"+label_class+"/"
@@ -150,13 +115,10 @@ if __name__ == '__main__' :
 
     for record in record_list:
         file = os.path.join(dataset_dir,record)
-        shuffled_cnn_data,shuffled_rnn_data,shuffled_label,record = apply_mixup(file, window_size,label_class,suffix)
-        output_data_cnn = output_dir+record+"_win_"+str(window_size)+"_cnn_dataset.pkl"
+        shuffled_rnn_data,shuffled_label,record = apply_mixup(file, window_size,label_class,suffix)
         output_data_rnn = output_dir+record+"_win_"+str(window_size)+"_rnn_dataset.pkl"
         output_label= output_dir+record+"_win_"+str(window_size)+"_labels.pkl"
 
-        with open(output_data_cnn, "wb") as fp:
-            pickle.dump( shuffled_cnn_data,fp, protocol=4)
         with open( output_data_rnn, "wb") as fp:
             pickle.dump(shuffled_rnn_data, fp, protocol=4)
         with open(output_label, "wb") as fp:
