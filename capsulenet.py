@@ -192,16 +192,13 @@ def manipulate_latent(model, data, args):
 
 
 #def load_mnist():
-def load_deapdata():
+def load_deapdata(subject,dimention):
     # the data, shuffled and split between train and test sets
     #from keras.datasets import mnist
-    from deapdata_pre_process import deapdata_pre_process
-    (x_train, y_train), (x_test, y_test) = deapdata_pre_process()
+    from deap_preprocess01 import deap_preprocess
+    (x_train, y_train), (x_test, y_test) = deap_preprocess(subject,dimention)
 
-    x_train = x_train.reshape(-1, 128, 32, 1).astype('float32')
-    x_test = x_test.reshape(-1, 128, 32, 1).astype('float32')
-    y_train = y_train.astype('float32')
-    y_test = y_test.astype('float32')
+   
     return (x_train, y_train), (x_test, y_test)
 
 
@@ -244,9 +241,13 @@ if __name__ == "__main__":
     if not os.path.exists(args.save_dir):
         os.makedirs(args.save_dir)
 
+              
+    subject = 's01'         #指定受试者 s01,s02......s32
+    dimention = 'arousal'   #指定维度 valence，arousal
+   
     # load data
-    (x_train, y_train), (x_test, y_test) = load_deapdata()
-    # (x_train, y_train), (x_test, y_test) = (x_test, y_test),(x_train, y_train)
+    (x_train, y_train), (x_test, y_test) = load_deapdata(subject,dimention)
+    
     # define model
     model, eval_model, manipulate_model = CapsNet(input_shape=x_train.shape[1:],
                                                   n_class=len(np.unique(np.argmax(y_train, 1))),
