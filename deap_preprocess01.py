@@ -4,15 +4,15 @@ import pandas as pd
 import os
 
 
-def deap_preprocess(data_file,dimention):
+def deap_preprocess(subject ,dimention):
     rnn_suffix = ".mat_win_128_rnn_dataset.pkl"
     label_suffix = ".mat_win_128_labels.pkl"
 
-    # data_file    =sys.argv[1]
+    # subject    =sys.argv[1]
     # arousal_or_valence = sys.argv[2]
     # with_or_without = sys.argv[3]
 
-    #data_file = 's22'
+    data_file = subject    #subject = 's22'
     arousal_or_valence = dimention
 
     with_or_without = 'yes'
@@ -41,14 +41,14 @@ def deap_preprocess(data_file,dimention):
     datasets = datasets.reshape(-1, 128, 32, 1).astype('float32')
     labels = labels.astype('float32')
 
-    """
+   
     # generate training sets and testing sets
-    x_train = rnn_datasets[0:2000]
-    y_train = labels[0:2000]
-    x_test = rnn_datasets[2000:2400]
-    y_test = labels[2000:2400]
-    """
+    x_train = rnn_datasets[0:2160]
+    y_train = labels[0:2160]
+    x_test = rnn_datasets[2160:2400]
+    y_test = labels[2160:2400]
+   
 
-    #return (x_train, y_train), (x_test, y_test)
+    return (x_train, y_train), (x_test, y_test)
 
-    return datasets , labels
+    #return datasets , labels
