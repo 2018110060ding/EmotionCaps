@@ -1,9 +1,8 @@
-#!/usr/bin/env python
-#-*- coding: utf-8 -*-
-#@file: pre_process.py
-#@author: Yilong Yang
-#@time: 2017/12/21 15:58
-########################################################
+""""
+Code credits to code for IJCNN 2018 submission: https://github.com/ynulonger/ijcnn
+
+"""
+
 import scipy.io as sio
 import argparse
 import os
