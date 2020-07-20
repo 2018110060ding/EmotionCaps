@@ -1,4 +1,4 @@
-# Code for Computers in Biology and Medicine 2020 submission
+# Code for Multi-level Features Guided Capsule Network （MLF-CapsNet）
 This repository contains the Keras implementation for the paper: "Multi-channel EEG-based Emotion Recognition via a Multi-level Features Guided Capsule Network"
 ## About the paper
 * Title: [Multi-channel EEG-based Emotion Recognition via a Multi-level Features Guided Capsule Network](https://www.researchgate.net/publication/343062414_Multi-channel_EEG-based_Emotion_Recognition_via_a_Multi-level_Features_Guided_Capsule_Network)
